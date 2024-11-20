@@ -6,7 +6,9 @@ public class Player : MonoBehaviour
 
     private Vector2 inputVector = Vector2.zero;
 
-    void Update()
+    public bool IsWalking { get; private set; }
+
+    private void Update()
     {
         inputVector = Vector2.zero;
 
@@ -28,13 +30,18 @@ public class Player : MonoBehaviour
             inputVector.x = 1;
         }
 
+        // Uniform movement
         inputVector = inputVector.normalized;
 
         Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
+        IsWalking = movementDirection != Vector3.zero;
+
+        // Position and Rotation
         transform.position += movementDirection * movementSpeed * Time.deltaTime;
 
         float rotateSpeed = 10f;
         transform.forward = Vector3.Slerp(transform.forward, movementDirection, Time.deltaTime * rotateSpeed);
     }
+
 }
