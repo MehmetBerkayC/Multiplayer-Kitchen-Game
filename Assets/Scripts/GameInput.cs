@@ -16,4 +16,14 @@ public class GameInput : MonoBehaviour
 
         return inputVector;
     }
+
+    private void OnEnable()
+    {
+        playerInputActions.Player.Enable();
+    }
+
+    private void OnDisable()
+    {
+        playerInputActions.Player.Disable();
+    }
 }
