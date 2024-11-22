@@ -3,6 +3,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] float movementSpeed = 7f;
+    [SerializeField] GameInput gameInput;
 
     private Vector2 inputVector = Vector2.zero;
 
@@ -10,28 +11,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        inputVector = Vector2.zero;
-
-        // Player Inputs
-        if (Input.GetKey(KeyCode.W))
-        {
-            inputVector.y = 1;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            inputVector.y = -1;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            inputVector.x = -1;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            inputVector.x = 1;
-        }
-
-        // Uniform movement
-        inputVector = inputVector.normalized;
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
 
         Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
