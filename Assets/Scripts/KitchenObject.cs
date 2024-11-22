@@ -4,18 +4,18 @@ public class KitchenObject : MonoBehaviour
 {
     [SerializeField] private KitchenObjectSO kitchenObjectSO;
 
-    private IKitchenObjectParent kitchenObjectParent;
+    private IKitchenObjectParent _kitchenObjectParent;
 
     public KitchenObjectSO GetKitchenObjectSO() { return kitchenObjectSO; }
 
     public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
     {
-        if (this.kitchenObjectParent != null)
+        if (_kitchenObjectParent != null)
         {
-            this.kitchenObjectParent.ClearKitchenObject();
+            _kitchenObjectParent.ClearKitchenObject();
         }
 
-        this.kitchenObjectParent = kitchenObjectParent;
+        _kitchenObjectParent = kitchenObjectParent;
 
         if (kitchenObjectParent.HasKitchenObject())
         {
@@ -30,6 +30,6 @@ public class KitchenObject : MonoBehaviour
 
     public IKitchenObjectParent GetClearCounter()
     {
-        return kitchenObjectParent;
+        return _kitchenObjectParent;
     }
 }
