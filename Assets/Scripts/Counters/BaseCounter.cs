@@ -8,12 +8,14 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
 
     public virtual void Interact(Player player)
     {
+        // Maybe change to do nothing if not implemented
         Debug.LogError("BaseCounter.Interact()");
     }
 
     public virtual void InteractAlternate(Player player)
     {
-        Debug.LogError("BaseCounter.InteractAlternate()");
+        // Maybe change to do nothing if not implemented
+        //Debug.LogError("BaseCounter.InteractAlternate()");
     }
 
     public void ClearKitchenObject()
