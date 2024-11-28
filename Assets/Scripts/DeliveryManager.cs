@@ -34,10 +34,13 @@ public class DeliveryManager : MonoBehaviour
         {
             _spawnRecipeTimer = _spawnRecipeTimerMax;
 
-            RecipeSO waitingRecipeSO = recipeListSO.RecipeSOList[UnityEngine.Random.Range(0, recipeListSO.RecipeSOList.Count)];
-            _waitingRecipeSOList.Add(waitingRecipeSO);
+            if (GameManager.Instance.IsGamePlaying())
+            {
+                RecipeSO waitingRecipeSO = recipeListSO.RecipeSOList[UnityEngine.Random.Range(0, recipeListSO.RecipeSOList.Count)];
+                _waitingRecipeSOList.Add(waitingRecipeSO);
 
-            OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
+                OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 

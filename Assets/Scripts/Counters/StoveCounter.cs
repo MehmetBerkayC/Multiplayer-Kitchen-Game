@@ -215,4 +215,9 @@ public class StoveCounter : BaseCounter, IHasProgress
         }
         return null; // No matching recipe inputs
     }
+
+    public bool IsFried()
+    {
+        return _state == State.Fried;
+    }
 }
