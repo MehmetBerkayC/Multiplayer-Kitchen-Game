@@ -1,9 +1,10 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Player : MonoBehaviour, IKitchenObjectParent
+public class Player : NetworkBehaviour, IKitchenObjectParent
 {
-    public static Player Instance { get; private set; }
+    //public static Player Instance { get; private set; } // Changes in Multiplayer
 
     public event EventHandler OnPickedSomething;
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
@@ -15,7 +16,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     public bool IsWalking { get; private set; }
 
     [SerializeField] private float movementSpeed = 7f;
-    [SerializeField] private GameInput gameInput;
     [SerializeField] private LayerMask countersLayermask;
 
     private Vector3 _lastInteractDirection;
@@ -26,17 +26,19 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
     private void Awake()
     {
-        if (Instance != null)
-        {
-            Debug.LogError("There is more than 1 Player instance!");
-        }
-        Instance = this;
+        //if (Instance != null)     // This needs deletion in Multiplayer
+        //{
+        //    Debug.LogError("There is more than 1 Player instance!");
+        //}
+
+
+        //Instance = this; // Keep it on Multiplayer
     }
 
     private void Start()
     {
-        gameInput.OnInteractAction += GameInput_OnInteractAction;
-        gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+        GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
+        GameInput.Instance.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
     }
 
     private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)
@@ -61,13 +63,16 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 
     private void Update()
     {
+        if (!IsOwner)
+            return;
+
         HandleMovement();
         HandleInteractions();
     }
 
     private void HandleInteractions()
     {
-        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector2 inputVector = GameInput.Instance.GetMovementVectorNormalized();
 
         Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
@@ -97,10 +102,28 @@ public class Player : MonoBehaviour, IKitchenObjectParent
         }
     }
 
+    #region Server-Authoritative Movement
+    ///**************** SERVER RPC - SERVER AUTHORITATIVE **************/
+    //// The code below makes sure that only the server/host decides if the object moves
+    //private void HandleMovementServerAuth()
+    //{
+    //    Vector2 inputVector = GameInput.Instance.GetMovementVectorNormalized();
+    //    HandleMovementServerRpc(inputVector);
+    //}
+
+    //[ServerRpc(RequireOwnership = false)]
+    //private void HandleMovementServerRpc(Vector2 inputVector)
+    //{
+    //    // Rest of it is the same code in the HandleMovement()
+    //}
+    //// Then just replace HandleMovement() on the update with the HandleMovementServerAuth()
+    //// Also use the regular Network Transform Component instead of the client one from the docs for this approach
+    ///*****************************************************************/
+    #endregion
 
     private void HandleMovement()
     {
-        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector2 inputVector = GameInput.Instance.GetMovementVectorNormalized();
 
         Vector3 movementDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 

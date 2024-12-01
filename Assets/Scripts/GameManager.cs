@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     private State _state;
 
-    private float _countdownToStartTimer = 3f;
+    private float _countdownToStartTimer = 1f; // Switch back to 3
     private float _gamePlayingTimer = 300f;
     private float _gamePlayingTimerMax = 300f;
 
@@ -37,6 +37,11 @@ public class GameManager : MonoBehaviour
     {
         GameInput.Instance.OnPauseAction += GameInput_OnPauseAction;
         GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
+
+        // DEBUG Trigger the game start initially
+        _state = State.CountdownToStart;
+        OnStateChanged?.Invoke(this, EventArgs.Empty);
+        //* * *
     }
 
     private void GameInput_OnInteractAction(object sender, EventArgs e)
