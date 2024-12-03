@@ -4,7 +4,16 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour, IKitchenObjectParent
 {
-    //public static Player Instance { get; private set; } // Changes in Multiplayer
+    public static event EventHandler OnAnyPlayerSpawned;
+    public static event EventHandler OnAnyPlayerPickedSomething;
+
+    public static void ResetStaticData()
+    {
+        OnAnyPlayerSpawned = null;
+        OnAnyPlayerPickedSomething = null;
+    }
+
+    public static Player LocalInstance { get; private set; } // Changes in Multiplayer
 
     public event EventHandler OnPickedSomething;
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
@@ -24,21 +33,23 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     [SerializeField] private Transform kitchenObjectHoldPoint;
     private KitchenObject _kitchenObject;
 
-    private void Awake()
-    {
-        //if (Instance != null)     // This needs deletion in Multiplayer
-        //{
-        //    Debug.LogError("There is more than 1 Player instance!");
-        //}
-
-
-        //Instance = this; // Keep it on Multiplayer
-    }
-
     private void Start()
     {
         GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
         GameInput.Instance.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+    }
+
+    // This function is called when an object spawns on the network
+    // (kind of like Awake but for Network Objects)
+    // You don't use Awake or Start for Network Objects
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            LocalInstance = this;
+        }
+
+        OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
     }
 
     private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)
@@ -187,6 +198,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         if (kitchenObject != null)
         {
             OnPickedSomething?.Invoke(this, EventArgs.Empty);
+            OnAnyPlayerPickedSomething?.Invoke(this, EventArgs.Empty);
         }
     }
     public Transform GetKitchenObjectFollowTransform()

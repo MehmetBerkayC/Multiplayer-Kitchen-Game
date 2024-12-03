@@ -120,7 +120,7 @@ public class DeliveryManager : NetworkBehaviour
     #endregion
 
     #region Incorrect Recipe
-    [ServerRpc(RequireOwnership = false)]
+    [ServerRpc(RequireOwnership = false)] // This attribute is required because this serverRpc requires ownership
     private void DeliverIncorrectRecipeServerRpc() // Code only runs on host(server)
     {
         DeliverIncorrectRecipeClientRpc();
