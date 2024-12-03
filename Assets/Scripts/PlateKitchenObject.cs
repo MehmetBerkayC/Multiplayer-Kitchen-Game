@@ -12,7 +12,18 @@ public class PlateKitchenObject : KitchenObject
 
     [SerializeField] private List<KitchenObjectSO> validKitchenObjectSOList;
 
-    private List<KitchenObjectSO> _kitchenObjectSOList = new List<KitchenObjectSO>();
+    private List<KitchenObjectSO> _kitchenObjectSOList;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        // If the KitchenObject script didn't have a virtual protected Unity method
+        // The line below would always get called but,
+        // we also need the Awake code in the KitchenObject script to run
+        // This is why this virtual Awake setup is required
+        _kitchenObjectSOList = new List<KitchenObjectSO>();
+        // I know this can be initialized on variable decleration but assume what if this was another code
+    }
 
     public bool TryAddIngredient(KitchenObjectSO kitchenObjectSO)
     {
