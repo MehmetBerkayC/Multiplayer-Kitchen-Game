@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
 public class BaseCounter : MonoBehaviour, IKitchenObjectParent
@@ -53,5 +54,10 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent
         {
             OnAnyObjectPlacedHere?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    public NetworkObject GetNetworkObject()
+    {
+        return null; // Change LAter
     }
 }
