@@ -55,6 +55,20 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
         transform.position = spawnPositionsList[(int)OwnerClientId];
 
         OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
+
+        if (IsServer) // Player disconnect callback and handling
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        }
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        // Destroy any object the client was holding while disconnecting
+        if (clientId == OwnerClientId && HasKitchenObject())
+        {
+            KitchenObject.DestroyKitchenObject(GetKitchenObject());
+        }
     }
 
     private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)
@@ -145,7 +159,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
 
         float movementDistance = movementSpeed * Time.deltaTime;
         float PlayerRadius = .7f;
-        float playerHeight = 2f;
+        //float playerHeight = 2f;
 
         bool canMove = !Physics.BoxCast(transform.position, Vector3.one * PlayerRadius, movementDirection, Quaternion.identity, movementDistance, collisionsLayermask);
 

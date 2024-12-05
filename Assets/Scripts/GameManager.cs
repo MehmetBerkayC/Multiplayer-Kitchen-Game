@@ -36,6 +36,8 @@ public class GameManager : NetworkBehaviour
     private Dictionary<ulong, bool> _playerReadyDictionary;
     private Dictionary<ulong, bool> _playerPausedDictionary;
 
+    private bool _autoTestGamePausedState = false;
+
     private void Awake()
     {
         Instance = this;
@@ -54,6 +56,20 @@ public class GameManager : NetworkBehaviour
     {
         _state.OnValueChanged += State_OnValueChanged;
         _isGamePaused.OnValueChanged += IsGamePaused_OnValueChanged;
+
+        if (IsServer)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        }
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong obj)
+    {
+        // If a player pauses and disconnects, check remaining players and move on
+        // BUT!! The client will still be on the connectedClient list on the NetworkManager because
+        // while this callback is invoked the client is still connected
+        // So, we just need to wait for 1 more frame until the player actually disconnects to check
+        _autoTestGamePausedState = true;
     }
 
     private void IsGamePaused_OnValueChanged(bool previousValue, bool newValue)
@@ -143,6 +159,15 @@ public class GameManager : NetworkBehaviour
                 break;
         }
         //Debug.Log(_state);
+    }
+
+    private void LateUpdate()
+    {
+        if (_autoTestGamePausedState)
+        {
+            _autoTestGamePausedState = false;
+            TestGamePausedState();
+        }
     }
 
     public bool IsGamePlaying()
