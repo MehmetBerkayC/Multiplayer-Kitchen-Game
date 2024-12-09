@@ -29,6 +29,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     [SerializeField] private LayerMask countersLayermask;
     [SerializeField] private LayerMask collisionsLayermask;
     [SerializeField] private List<Vector3> spawnPositionsList;
+    [SerializeField] private PlayerVisual playerVisual;
 
     private Vector3 _lastInteractDirection;
     private BaseCounter _selectedCounter;
@@ -40,6 +41,9 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
     {
         GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
         GameInput.Instance.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+
+        PlayerData playerData = KitchenGameMultiplayer.Instance.GetPlayerDataFromClientId(OwnerClientId);
+        playerVisual.SetPlayerColor(KitchenGameMultiplayer.Instance.GetPlayerColor(playerData.ColorID));
     }
 
     // This function is called when an object spawns on the network
@@ -52,7 +56,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent
             LocalInstance = this;
         }
 
-        transform.position = spawnPositionsList[(int)OwnerClientId];
+        transform.position = spawnPositionsList[KitchenGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
 
         OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
 

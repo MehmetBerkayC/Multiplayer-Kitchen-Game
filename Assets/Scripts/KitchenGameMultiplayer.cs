@@ -38,14 +38,29 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallback;
         NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
         NetworkManager.Singleton.StartHost();
+    }
+
+    private void NetworkManager_Server_OnClientDisconnectCallback(ulong clientId)
+    {
+        for (int i = 0; i < playerDataNetworkList.Count; i++)
+        {
+            PlayerData playerData = playerDataNetworkList[i];
+            if (playerData.ClientID == clientId)
+            {
+                // Client Disconnected
+                playerDataNetworkList.RemoveAt(i);
+            }
+        }
     }
 
     private void NetworkManager_OnClientConnectedCallback(ulong clientId)
     {
         playerDataNetworkList.Add(new PlayerData
         {
-            ClientID = clientId
+            ClientID = clientId,
+            ColorID = GetFirstUnusedCclorId()
         });
     }
 
@@ -72,12 +87,12 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     {
         OnTryingToJoinGame?.Invoke(this, EventArgs.Empty);
 
-        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Client_OnClientDisconnectCallback;
 
         NetworkManager.Singleton.StartClient();
     }
 
-    private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientId)
     {
         OnFailedToJoinGame?.Invoke(this, EventArgs.Empty);
     }
@@ -153,5 +168,99 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     public Color GetPlayerColor(int colorId)
     {
         return playerColorList[colorId];
+    }
+
+    public PlayerData GetPlayerDataFromClientId(ulong clientId)
+    {
+        foreach (PlayerData playerData in playerDataNetworkList)
+        {
+            if (playerData.ClientID == clientId)
+            {
+                return playerData;
+            }
+        }
+
+        return default;
+    }
+
+    public int GetPlayerDataIndexFromClientId(ulong clientId)
+    {
+        for (int i = 0; i < playerDataNetworkList.Count; i++)
+        {
+            if (playerDataNetworkList[i].ClientID == clientId)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public PlayerData GetPlayerData()
+    {
+        return GetPlayerDataFromClientId(NetworkManager.Singleton.LocalClientId);
+    }
+
+    public void ChangePlayerColor(int colorId)
+    {
+        ChangePlayerColorServerRpc(colorId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ChangePlayerColorServerRpc(int colorId, ServerRpcParams serverRpcParams = default)
+    {
+        if (!IsColorAvailable(colorId))
+        {
+            // Color is already in use
+
+            return;
+        }
+
+        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+        // You need to make a new/clone data (because it is a struct) then update the old one
+        PlayerData playerData = playerDataNetworkList[playerDataIndex];
+
+        // Structs don't let you directly override, example below wouldn't work
+        // playerDataNetworkList[playerDataIndex].ColorID = colorId;
+
+        playerData.ColorID = colorId;
+
+        playerDataNetworkList[playerDataIndex] = playerData;
+        // struct update complete
+    }
+
+    private bool IsColorAvailable(int colorId)
+    {
+
+        foreach (var playerData in playerDataNetworkList)
+        {
+            if (playerData.ColorID == colorId)
+            {
+                // Color is already in use
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int GetFirstUnusedCclorId()
+    {
+        for (int i = 0; i < playerColorList.Count; i++)
+        {
+            if (IsColorAvailable(i))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public void KickPlayer(ulong clientId)
+    {
+        NetworkManager.Singleton.DisconnectClient(clientId);
+        // For some reason ^ the code above doesn't trigger the clientDisconnectCallback, manually call it
+        NetworkManager_Server_OnClientDisconnectCallback(clientId);
     }
 }
