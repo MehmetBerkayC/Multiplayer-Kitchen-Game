@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class CharacterSelectReady : NetworkBehaviour
+public class CharacterSelectionReady : NetworkBehaviour
 {
-    public static CharacterSelectReady Instance { get; private set; }
+    public static CharacterSelectionReady Instance { get; private set; }
 
-    private Dictionary<ulong, bool> _playerReadyDictionary;
+    public event EventHandler OnReadyChanged;
+
+    private Dictionary<ulong, bool> _playerReadyDictionary; // Not a NetworkVariable
 
     private void Awake()
     {
@@ -22,6 +25,11 @@ public class CharacterSelectReady : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SetPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
+        // The dictionary to set player ready state is not synced - not a network variable
+        // Ready game object on CharacterSelectionPlayer needs to know who set themselves as ready
+        // This client rpc is required to sync that data
+        SetPlayerReadyClientRpc(serverRpcParams.Receive.SenderClientId);
+
         _playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
 
 
@@ -41,5 +49,19 @@ public class CharacterSelectReady : NetworkBehaviour
         {
             Loader.LoadNetwork(Loader.Scene.GameScene);
         }
+    }
+
+    [ClientRpc]
+    private void SetPlayerReadyClientRpc(ulong clientId)
+    {
+        _playerReadyDictionary[clientId] = true;
+
+        OnReadyChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public bool IsPlayerReady(ulong clientId)
+    {
+        // Check if clientId is valid then get the ready value
+        return _playerReadyDictionary.ContainsKey(clientId) && _playerReadyDictionary[clientId];
     }
 }

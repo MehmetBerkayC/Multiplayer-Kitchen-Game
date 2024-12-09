@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,22 +10,43 @@ public class KitchenGameMultiplayer : NetworkBehaviour
 
     public event EventHandler OnTryingToJoinGame;
     public event EventHandler OnFailedToJoinGame;
+    public event EventHandler OnPlayerDataNetworkListChanged;
 
     private const int MAX_PLAYER_LIMIT = 4;
 
     [SerializeField] private KitchenObjectListSO kitchenObjectListSO;
+    [SerializeField] private List<Color> playerColorList;
+
+    private NetworkList<PlayerData> playerDataNetworkList;
 
     private void Awake()
     {
         Instance = this;
 
         DontDestroyOnLoad(gameObject);
+
+        playerDataNetworkList = new NetworkList<PlayerData>(); // You can only declare NetworkLists on Awake
+        playerDataNetworkList.OnListChanged += PlayerDataNetworkList_OnListChanged;
+    }
+
+    private void PlayerDataNetworkList_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
+    {
+        OnPlayerDataNetworkListChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void StartHost()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallback;
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         NetworkManager.Singleton.StartHost();
+    }
+
+    private void NetworkManager_OnClientConnectedCallback(ulong clientId)
+    {
+        playerDataNetworkList.Add(new PlayerData
+        {
+            ClientID = clientId
+        });
     }
 
     private void NetworkManager_ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
@@ -118,4 +140,18 @@ public class KitchenGameMultiplayer : NetworkBehaviour
         kitchenObject.ClearKitchenObjectOnParent();
     }
 
+    public bool IsPlayerIndexConnected(int playerIndex)
+    {
+        return playerIndex < playerDataNetworkList.Count;
+    }
+
+    public PlayerData GetPlayerDataFromPlayerIndex(int playerIndex)
+    {
+        return playerDataNetworkList[playerIndex];
+    }
+
+    public Color GetPlayerColor(int colorId)
+    {
+        return playerColorList[colorId];
+    }
 }
