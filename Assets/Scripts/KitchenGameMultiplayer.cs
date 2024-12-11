@@ -60,7 +60,7 @@ public class KitchenGameMultiplayer : NetworkBehaviour
         playerDataNetworkList.Add(new PlayerData
         {
             ClientID = clientId,
-            ColorID = GetFirstUnusedCclorId()
+            ColorID = GetFirstUnusedColorId()
         });
     }
 
@@ -244,7 +244,7 @@ public class KitchenGameMultiplayer : NetworkBehaviour
         return true;
     }
 
-    private int GetFirstUnusedCclorId()
+    private int GetFirstUnusedColorId()
     {
         for (int i = 0; i < playerColorList.Count; i++)
         {
