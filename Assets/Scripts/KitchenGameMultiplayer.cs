@@ -12,7 +12,7 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     public event EventHandler OnFailedToJoinGame;
     public event EventHandler OnPlayerDataNetworkListChanged;
 
-    private const int MAX_PLAYER_LIMIT = 4;
+    public const int MAX_PLAYER_LIMIT = 4;
 
     [SerializeField] private KitchenObjectListSO kitchenObjectListSO;
     [SerializeField] private List<Color> playerColorList;
