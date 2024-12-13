@@ -406,7 +406,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -65}
+  m_AnchoredPosition: {x: 0, y: -47.75}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &232373648
@@ -1366,6 +1366,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4558292799719056093, guid: 414148b51c3640249a1b45238de1ad2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 414148b51c3640249a1b45238de1ad2f, type: 3}
 --- !u!1 &986916252
 GameObject:
@@ -1522,7 +1526,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 1
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -3714,6 +3718,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4558292799719056093, guid: 414148b51c3640249a1b45238de1ad2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 414148b51c3640249a1b45238de1ad2f, type: 3}
 --- !u!224 &1744445245 stripped
 RectTransform:
@@ -3775,6 +3783,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuButton: {fileID: 1521971444}
   readyButton: {fileID: 725609544}
+  lobbyNameText: {fileID: 232373648}
+  lobbyCodeText: {fileID: 2137443419}
 --- !u!1001 &2002442144
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3854,6 +3864,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2891770237085965294, guid: 414148b51c3640249a1b45238de1ad2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4558292799719056093, guid: 414148b51c3640249a1b45238de1ad2f,
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -4150,7 +4164,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -117.5}
+  m_AnchoredPosition: {x: 0, y: -89}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2137443419
@@ -4442,6 +4456,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2891770237085965294, guid: 414148b51c3640249a1b45238de1ad2f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4558292799719056093, guid: 414148b51c3640249a1b45238de1ad2f,
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Color = UnityEngine.Color;
 
 public class KitchenGameMultiplayer : NetworkBehaviour
 {
@@ -13,11 +15,14 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     public event EventHandler OnPlayerDataNetworkListChanged;
 
     public const int MAX_PLAYER_LIMIT = 4;
+    private const string PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER = "PlayerNameMultiplayer";
 
     [SerializeField] private KitchenObjectListSO kitchenObjectListSO;
     [SerializeField] private List<Color> playerColorList;
 
     private NetworkList<PlayerData> playerDataNetworkList;
+
+    private string _playerName;
 
     private void Awake()
     {
@@ -25,8 +30,17 @@ public class KitchenGameMultiplayer : NetworkBehaviour
 
         DontDestroyOnLoad(gameObject);
 
+        _playerName = PlayerPrefs.GetString(PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER, "PlayerName" + UnityEngine.Random.Range(100, 1000));
+
         playerDataNetworkList = new NetworkList<PlayerData>(); // You can only declare NetworkLists on Awake
         playerDataNetworkList.OnListChanged += PlayerDataNetworkList_OnListChanged;
+    }
+
+    public string GetPlayerName() { return _playerName; }
+    public void SetPlayerName(string playerName)
+    {
+        _playerName = playerName;
+        PlayerPrefs.SetString(PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER, playerName);
     }
 
     private void PlayerDataNetworkList_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
@@ -62,6 +76,9 @@ public class KitchenGameMultiplayer : NetworkBehaviour
             ClientID = clientId,
             ColorID = GetFirstUnusedColorId()
         });
+
+        SetPlayerIDServerRpc(AuthenticationService.Instance.PlayerId);
+        SetPlayerNameServerRpc(GetPlayerName());
     }
 
     private void NetworkManager_ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
@@ -88,8 +105,48 @@ public class KitchenGameMultiplayer : NetworkBehaviour
         OnTryingToJoinGame?.Invoke(this, EventArgs.Empty);
 
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Client_OnClientDisconnectCallback;
-
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Client_OnClientConnectedCallback;
         NetworkManager.Singleton.StartClient();
+    }
+
+    private void NetworkManager_Client_OnClientConnectedCallback(ulong clientId)
+    {
+        SetPlayerNameServerRpc(GetPlayerName());
+        SetPlayerIDServerRpc(AuthenticationService.Instance.PlayerId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerNameServerRpc(string playerName, ServerRpcParams serverRpcParams = default)
+    {
+        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+        // You need to make a new/clone data (because it is a struct) then update the old one
+        PlayerData playerData = playerDataNetworkList[playerDataIndex];
+
+        // Structs don't let you directly override, example below wouldn't work
+        // playerDataNetworkList[playerDataIndex].ColorID = colorId;
+
+        playerData.PlayerName = playerName;
+
+        playerDataNetworkList[playerDataIndex] = playerData;
+        // struct update complete
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerIDServerRpc(string playerId, ServerRpcParams serverRpcParams = default)
+    {
+        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+        // You need to make a new/clone data (because it is a struct) then update the old one
+        PlayerData playerData = playerDataNetworkList[playerDataIndex];
+
+        // Structs don't let you directly override, example below wouldn't work
+        // playerDataNetworkList[playerDataIndex].ColorID = colorId;
+
+        playerData.PlayerID = playerId;
+
+        playerDataNetworkList[playerDataIndex] = playerData;
+        // struct update complete
     }
 
     private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientId)
