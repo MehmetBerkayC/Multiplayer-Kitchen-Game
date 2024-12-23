@@ -14,6 +14,8 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     public event EventHandler OnFailedToJoinGame;
     public event EventHandler OnPlayerDataNetworkListChanged;
 
+    public static bool PlayMultiplayer;
+
     public const int MAX_PLAYER_LIMIT = 4;
     private const string PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER = "PlayerNameMultiplayer";
 
@@ -34,6 +36,16 @@ public class KitchenGameMultiplayer : NetworkBehaviour
 
         playerDataNetworkList = new NetworkList<PlayerData>(); // You can only declare NetworkLists on Awake
         playerDataNetworkList.OnListChanged += PlayerDataNetworkList_OnListChanged;
+    }
+
+    private void Start()
+    {
+        if (!PlayMultiplayer)
+        {
+            // Singleplayer
+            StartHost();
+            Loader.LoadNetwork(Loader.Scene.GameScene);
+        }
     }
 
     public string GetPlayerName() { return _playerName; }

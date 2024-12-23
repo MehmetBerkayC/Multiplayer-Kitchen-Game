@@ -53,7 +53,9 @@ public class KitchenGameLobby : MonoBehaviour
             // Lobby works based on the player ID that the auth service generates, and multiple builds on the same PC will have the same ID's
             // To be able to test, initialize with different options each time 
             InitializationOptions initializationOptions = new InitializationOptions();
-            initializationOptions.SetProfile(UnityEngine.Random.Range(0, 1000).ToString());
+
+            /// Dont need this line on end-product, it was only for the accurate testing of different players
+            //initializationOptions.SetProfile(UnityEngine.Random.Range(0, 1000).ToString());
 
             await UnityServices.InitializeAsync(initializationOptions);
 
