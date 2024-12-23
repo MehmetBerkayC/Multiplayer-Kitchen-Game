@@ -163,16 +163,24 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     public void SpawnKitchenObjectServerRpc(int kitchenObjectSOIndex, NetworkObjectReference kitchenObjectParentNetworkObjectReference)
     {
         KitchenObjectSO kitchenObjectSO = GetKitchenObjectSOFromIndex(kitchenObjectSOIndex);
+
+        kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
+        IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
+
+        if (kitchenObjectParent.HasKitchenObject()) // Poor Connection Spam Precaution
+        {
+            // Parent already spawned an object
+            return;
+        }
+
+        // Spawning The Object
         Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.Prefab);
 
-        // Spawn object on network
+        /// Spawn on network
         NetworkObject kitchenObjectNetworkObject = kitchenObjectTransform.GetComponent<NetworkObject>();
         kitchenObjectNetworkObject.Spawn(true);
 
         KitchenObject kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
-
-        kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
-        IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
 
         kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
     }
@@ -196,6 +204,12 @@ public class KitchenGameMultiplayer : NetworkBehaviour
     private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference)
     {
         kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
+
+        if (kitchenObjectNetworkObject == null) // Poor Connection Spam Precaution
+        {// Object already destroyed 
+            return;
+        }
+
         KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
 
         ClearKitchenObjectOnParentClientRpc(kitchenObjectNetworkObject);

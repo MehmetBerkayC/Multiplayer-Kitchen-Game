@@ -90,14 +90,18 @@ public class CuttingCounter : BaseCounter, IHasProgress
         {
             // There is a kitchenObject on the counter AND is cuttable
             CutObjectServerRpc();
+            TestCuttingProgressDoneServerRpc();
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void CutObjectServerRpc()
     {
-        CutObjectClientRpc();
-        TestCuttingProgressDoneServerRpc();
+        // Cutting Action is possible
+        if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO()))
+        {
+            CutObjectClientRpc();
+        }
     }
 
     [ClientRpc]
@@ -119,16 +123,20 @@ public class CuttingCounter : BaseCounter, IHasProgress
     [ServerRpc(RequireOwnership = false)]
     private void TestCuttingProgressDoneServerRpc() // Separated from CutObjectClientRpc logic (originally it is the continuation)
     {
-        CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
-
-        if (_cuttingProgress >= cuttingRecipeSO.CuttingProgressMax)
+        // Cutting Action is possible
+        if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO()))
         {
-            KitchenObjectSO outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+            CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
 
-            KitchenObject.DestroyKitchenObject(GetKitchenObject());
-            //GetKitchenObject().DestroySelf(); // Multiplayer Change ^
+            if (_cuttingProgress >= cuttingRecipeSO.CuttingProgressMax)
+            {
+                KitchenObjectSO outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
 
-            KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
+                KitchenObject.DestroyKitchenObject(GetKitchenObject());
+                //GetKitchenObject().DestroySelf(); // Multiplayer Change ^
+
+                KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
+            }
         }
     }
 
