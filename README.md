@@ -4,7 +4,7 @@
 ## What are used?
 <ul>
  <li>Multiplayer: Netcode for GameObjects -> Client-Server RPC's</li>
- <li>Design Patterns: Singleton </li>
+ <li>Singletons, Component Decoupling, Object Oriented Programming(OOP)</li>
 </ul>
 
 Waiting documentation updates...
