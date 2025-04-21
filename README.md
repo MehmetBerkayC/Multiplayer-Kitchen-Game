@@ -1,10 +1,17 @@
-# Multiplayer Kitchen Game
+# Multiplayer Kitchen Simulation Game
  Experiencing a production ready game development journey through CodeMonkey. Any new, interesting, or advanced development details will be documented.
 
-## What are used?
-<ul>
- <li>Multiplayer: Netcode for GameObjects -> Client-Server RPC's</li>
- <li>Singletons, Component Decoupling, Object Oriented Programming(OOP)</li>
-</ul>
+## What I practiced in this project:
 
-Waiting documentation updates...
+- Writing clean code and refactoring
+- Decoupling using C# Events
+- Scriptable Objects
+- Shader Graphs
+- Animating using Animation Controller
+- Unity's Input System
+- Netcode for Game Objects: RPCs, Network Manager, Lobby
+- Interfaces, state machines, singletons, managers, serialization...
+  
+Download playable build at [Itch.io](https://mehmetberkayc.itch.io/kitchen-chaos) 
+
+![image](https://github.com/user-attachments/assets/ce3ff7c3-d808-4d35-ba4e-d7073153cba8)
