@@ -1,7 +1,7 @@
 # Multiplayer Kitchen Simulation Game
- Experiencing a production ready game development journey through CodeMonkey. Any new, interesting, or advanced development details will be documented.
+ Any new, interesting, or advanced development details will be here.
 
-## What I practiced in this project:
+## Practiced in this project:
 
 - Writing clean code and refactoring
 - Decoupling using C# Events
